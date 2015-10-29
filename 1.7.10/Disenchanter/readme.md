@@ -1,0 +1,1 @@
+Allow players to disenchant items.

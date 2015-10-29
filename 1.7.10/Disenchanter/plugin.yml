@@ -1,0 +1,25 @@
+name: Disenchanter
+version: 1.0.0
+main: aireayquaza.disenchanter.Disenchanter
+description: Allow players to disenchant your handed item
+author: Aire Ayquaza
+commands:
+    disenchant:
+        description: Remove one enchantment from your handed item in a book for a variable level cost.
+        permission: disenchanter.disenchant
+    separate:
+        description: Separate all enchantments contains in a book into one book by enchantments.
+        permission: disenchanter.separate
+permissions:
+    disenchanter.*:
+        description: Allow someone to use all commands availables in this plugin.
+        default: true
+        children:
+            disenchanter.disenchant: true
+            disenchanter.separate: true
+    disenchanter.disenchant:
+        description: Allow someone to use the disenchant command.
+        default: true
+    disenchanter.separate:
+        description: Allow someone to use the separate command.
+        default: true
