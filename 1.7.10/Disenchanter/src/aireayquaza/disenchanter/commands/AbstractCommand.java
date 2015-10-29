@@ -10,6 +10,7 @@ import java.util.Iterator;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -17,16 +18,18 @@ public abstract class AbstractCommand
 {
 	protected Player player;
 	protected ItemStack itemInHand;
+	protected FileConfiguration config;
 	
 	/**
 	 * Command constructor
 	 * @param player
 	 * 		The command sender
 	 */
-	public AbstractCommand(Player player)
+	public AbstractCommand(Player player, FileConfiguration config)
 	{
 		this.player = player;
 		this.itemInHand = player.getItemInHand();
+		this.config = config;
 	}
 	
 	/**
@@ -95,7 +98,7 @@ public abstract class AbstractCommand
 		{
 			ItemStack item = it.next();
 			
-			if (item.getType().equals(Material.BOOK))
+			if (item != null && item.getType().equals(Material.BOOK))
 			{
 				n += item.getAmount();
 			}
@@ -117,7 +120,7 @@ public abstract class AbstractCommand
 		}
 		else
 		{
-			this.player.sendMessage(ChatColor.RED + "You don't have permission to perform this command!");
+			this.player.sendMessage(ChatColor.RED + this.config.getString("disenchanter.general.playerHasPermissionError"));
 			return false;
 		}
 	}
@@ -134,7 +137,7 @@ public abstract class AbstractCommand
 		}
 		else
 		{
-			this.player.sendMessage(ChatColor.RED + "You must stand up onto an enchanting table to process the disanchentment!");
+			this.player.sendMessage(ChatColor.RED + this.config.getString("disenchanter.general.blockBelowIsNotEnchantingTableError"));
 			return false;
 		}
 	}
@@ -155,30 +158,13 @@ public abstract class AbstractCommand
 			}
 			else
 			{
-				this.player.sendMessage(ChatColor.RED + "You need " + nbOfBook + " for process this command!");
+				this.player.sendMessage(ChatColor.RED + this.config.getString("disenchanter.general.multipleBookRequirementError").replaceAll("(.+)?(\\{nbOfBook\\})(.+)?", "$1" + nbOfBook + " book" + (nbOfBook > 1 ? "s" : "") + "$3"));
 				return false;
 			}
 		}
 		else
 		{
-			this.player.sendMessage(ChatColor.RED + "You need a book to process the disenchantment!");
-			return false;
-		}
-	}
-	
-	/*
-	 * Test if the player's item in hand has enchants
-	 * @return <code>true</code> if has, false else
-	 */
-	protected boolean itemInHandHasEnchant()
-	{
-		if (this.itemInHand.getItemMeta().hasEnchants())
-		{
-			return true;
-		}
-		else
-		{
-			this.player.sendMessage(ChatColor.RED + "The item in your hand has no enchantment!");
+			this.player.sendMessage(ChatColor.RED + this.config.getString("disenchanter.general.bookRequirementError"));
 			return false;
 		}
 	}

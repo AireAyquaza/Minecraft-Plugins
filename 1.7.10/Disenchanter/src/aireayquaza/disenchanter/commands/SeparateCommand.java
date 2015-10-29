@@ -12,6 +12,7 @@ import java.util.Set;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,9 +27,12 @@ public class SeparateCommand extends AbstractCommand
 	 * @param player
 	 * 		The command sender
 	 */
-	public SeparateCommand(Player player)
+	public SeparateCommand(Player player, FileConfiguration config)
 	{
-		super(player);
+		super(player, config);
+		this.player = player;
+		this.itemInHand = player.getItemInHand();
+		this.config = config;
 	}
 
 	/**
@@ -37,8 +41,7 @@ public class SeparateCommand extends AbstractCommand
 	@Override
 	public void execute()
 	{
-		EnchantmentStorageMeta meta = (EnchantmentStorageMeta) this.itemInHand.getItemMeta();
-		if (this.playerHasPermissionOrIsOp() && this.blockBelowPlayerIsEnchantingTable() && this.itemInHandIsEnchantedBook() && this.playerHasBook(meta.getStoredEnchants().size()))
+		if (this.itemInHand != null && this.playerHasPermissionOrIsOp() && this.blockBelowPlayerIsEnchantingTable() && this.itemInHandIsEnchantedBook() && this.playerHasBook(((EnchantmentStorageMeta) this.itemInHand.getItemMeta()).getStoredEnchants().size()))
 		{
 			this.extractEnchantmentAndGiveEnchantedBook();
 		}
@@ -70,11 +73,11 @@ public class SeparateCommand extends AbstractCommand
 			this.player.setItemInHand(null);
 			this.player.setLevel(this.player.getLevel() - cost);
 			this.player.getLocation().getWorld().playSound(this.player.getLocation(), Sound.LEVEL_UP, 100, 3);
-			this.player.sendMessage(ChatColor.GREEN + "Separating success!");
+			this.player.sendMessage(ChatColor.GREEN + this.config.getString("disenchanter.separate.separateSuccess"));
 		}
 		else
 		{
-			this.player.sendMessage(ChatColor.RED + "You need " + cost + " level" + (cost > 1 ? "s" : "") + " to disenchant this item!");
+			this.player.sendMessage(ChatColor.RED + this.config.getString("disenchanter.general.levelRequirementError").replaceAll("(.+)?(\\{levelCost\\})(.+)?", "$1" + cost + " level" + (cost > 1 ? "s" : "") + "$3"));
 		}
 	}
 	
@@ -108,7 +111,7 @@ public class SeparateCommand extends AbstractCommand
 	 */
 	private boolean itemInHandIsEnchantedBook()
 	{
-		if (this.itemInHand.getType().equals(Material.ENCHANTED_BOOK))
+		if (this.itemInHand != null && this.itemInHand.getType().equals(Material.ENCHANTED_BOOK))
 		{
 			EnchantmentStorageMeta meta = (EnchantmentStorageMeta) this.itemInHand.getItemMeta();
 			if (meta.getStoredEnchants().size() > 1)
@@ -116,7 +119,7 @@ public class SeparateCommand extends AbstractCommand
 				return true;
 			}
 		}
-		this.player.sendMessage(ChatColor.RED + "You can use this command only on Enchanted Book witch have more than one enchantment!");
+		this.player.sendMessage(ChatColor.RED + this.config.getString("disenchanter.separate.itemInHandNotAnEnchantedBookError"));
 		return false;
 	}
 }

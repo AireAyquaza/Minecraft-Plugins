@@ -26,6 +26,7 @@ public class Disenchanter extends JavaPlugin
 	public void onEnable()
 	{
 		console = Bukkit.getServer().getConsoleSender();
+		this.saveDefaultConfig();
 	}
 	
 	/**
@@ -47,7 +48,7 @@ public class Disenchanter extends JavaPlugin
 		if (label.equalsIgnoreCase("disenchant") && senderIsPlayer(sender))
 		{
 			Player player = (Player) sender;
-			AbstractCommand c = new DisenchantCommand(player);
+			AbstractCommand c = new DisenchantCommand(player, this.getConfig());
 			c.execute();
 		}
 		
@@ -55,7 +56,7 @@ public class Disenchanter extends JavaPlugin
 		if (label.equalsIgnoreCase("separate") && senderIsPlayer(sender))
 		{
 			Player player = (Player) sender;
-			AbstractCommand c = new SeparateCommand(player);
+			AbstractCommand c = new SeparateCommand(player, this.getConfig());
 			c.execute();
 		}
 		
@@ -76,7 +77,7 @@ public class Disenchanter extends JavaPlugin
 		}
 		else
 		{
-			console.sendMessage(ChatColor.RED + "Only players can perform this command!");
+			console.sendMessage(ChatColor.RED + this.getConfig().getString("disenchanter.main.commandSenderNotAPlayerError"));
 			return false;
 		}
 	}

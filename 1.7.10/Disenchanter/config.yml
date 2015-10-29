@@ -1,0 +1,17 @@
+#Please do not remove or modify the blocks {nbOfBook} and {levelCost}
+
+disenchanter:
+    main:
+        commandSenderNotAPlayerError: "Only players can perform this command!"
+    general:
+        playerHasPermissionError: "You don't have permission to perform this command!"
+        blockBelowIsNotEnchantingTableError: "You must be on an enchanting table to process the disanchentment!"
+        bookRequirementError: "You need a book to process the disenchantment!"
+        multipleBookRequirementError: "You need {nbOfBook} for process this command!"
+        levelRequirementError: "You need {levelCost} to disenchant this item!"
+    disenchant:
+        noEnchantmentItemInHandError: "The item in your hand has doesn't have enchantment!"
+        disenchantSuccess: "Disenchanting success!"
+    separate:
+        separateSuccess: "Separating success!"
+        itemInHandNotAnEnchantedBookError: "You can use this command only on Enchanted Book witch have more than one enchantment!"

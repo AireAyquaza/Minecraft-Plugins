@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -28,9 +29,12 @@ public class DisenchantCommand extends AbstractCommand
 	 * @param player
 	 * 		The command sender
 	 */
-	public DisenchantCommand(Player player)
+	public DisenchantCommand(Player player, FileConfiguration config)
 	{
-		super(player);
+		super(player, config);
+		this.player = player;
+		this.itemInHand = player.getItemInHand();
+		this.config = config;
 	}
 	
 	/**
@@ -38,10 +42,9 @@ public class DisenchantCommand extends AbstractCommand
 	 */
 	public void execute()
 	{
-		if (this.playerHasPermissionOrIsOp() && this.blockBelowPlayerIsEnchantingTable() && this.itemInHandHasEnchant() && this.playerHasBook(1))
+		if (this.itemInHand != null && this.playerHasPermissionOrIsOp() && this.blockBelowPlayerIsEnchantingTable() && this.itemInHandHasEnchant() && this.playerHasBook(1))
 		{
 			this.extractEnchantmentAndGiveEnchantedBook();
-			this.damageItem();
 		}
 	}
 	
@@ -52,26 +55,28 @@ public class DisenchantCommand extends AbstractCommand
 	 */
 	private void extractEnchantmentAndGiveEnchantedBook()
 	{
-		int cost = this.getCost();
+		Entry<Enchantment,Integer> entry = this.itemInHand.getEnchantments().entrySet().iterator().next();
+		int cost = this.getCost(entry.getKey(), entry.getValue());
 		
 		if (this.player.getLevel() >= cost)
 		{
-			Entry<Enchantment,Integer> entry = this.itemInHand.getEnchantments().entrySet().iterator().next();
 			ItemStack enchantedBook = new ItemStack(Material.ENCHANTED_BOOK);
 			EnchantmentStorageMeta meta = (EnchantmentStorageMeta) enchantedBook.getItemMeta();
 			
 			meta.addStoredEnchant(entry.getKey(), entry.getValue(), false);
 			enchantedBook.setItemMeta(meta);
 			
+			this.itemInHand.removeEnchantment(entry.getKey());
 			this.findAndRemoveBook();
 			this.player.getLocation().getWorld().dropItemNaturally(this.player.getLocation(), enchantedBook);
-			this.player.sendMessage(ChatColor.GREEN + "Disenchanting success!");
+			this.player.sendMessage(ChatColor.GREEN + this.config.getString("disenchanter.disenchant.disenchantSuccess"));
 			this.player.setLevel(this.player.getLevel() - cost);
 			this.player.getLocation().getWorld().playSound(this.player.getLocation(), Sound.LEVEL_UP, 100, 3);
+			this.damageItem();
 		}
 		else
 		{
-			this.player.sendMessage(ChatColor.RED + "You need " + cost + " level" + (cost > 1 ? "s" : "") + " to disenchant this item!");
+			this.player.sendMessage(ChatColor.RED + this.config.getString("disenchanter.general.levelRequirementError").replaceAll("(.+)?(\\{levelCost\\})(.+)?", "$1" + cost + " level" + (cost > 1 ? "s" : "") + "$3"));
 		}
 	}
 	
@@ -79,13 +84,28 @@ public class DisenchantCommand extends AbstractCommand
 	 * Get the cost in level for execute the command
 	 * @return the cost
 	 */
-	private int getCost()
+	private int getCost(Enchantment ench, int level)
 	{
-		Entry<Enchantment,Integer> entry = this.itemInHand.getEnchantments().entrySet().iterator().next();
 		Repairable meta = (Repairable) this.itemInHand.getItemMeta();
 		
-		this.itemInHand.removeEnchantment(entry.getKey());
-		
-		return EnchantmentCost.valueOf(entry.getKey().getName()).getCost() * entry.getValue() + meta.getRepairCost();
+		return EnchantmentCost.valueOf(ench.getName()).getCost() * level + meta.getRepairCost();
+	}
+	
+	/* ----- Conditions ----- */
+	/*
+	 * Test if the player's item in hand has enchants
+	 * @return <code>true</code> if has, false else
+	 */
+	protected boolean itemInHandHasEnchant()
+	{
+		if (this.itemInHand != null && this.itemInHand.hasItemMeta() && this.itemInHand.getItemMeta().hasEnchants())
+		{
+			return true;
+		}
+		else
+		{
+			this.player.sendMessage(ChatColor.RED + this.config.getString("disenchanter.disenchant.noEnchantmentItemInHandError"));
+			return false;
+		}
 	}
 }
