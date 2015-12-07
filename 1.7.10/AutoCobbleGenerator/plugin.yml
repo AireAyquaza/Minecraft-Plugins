@@ -1,0 +1,32 @@
+name: AutoCobbleGenerator
+version: 1.0.0
+main: aireayquaza.autocobblegenerator.AutoCobbleGenerator
+description: Allow players to set-up an auto cobble generator
+author: Aire Ayquaza
+commands:
+    setauto:
+        description: Set an auto cobblestone breaker to the focused block.
+        permission: acg.setauto
+    removeauto:
+        description: Remove the auto cobblestone breaker from the focused block.
+        permission: acg.removeauto
+    removeall:
+        description: Remove all breakers in the world.
+        permission: acg.removeall
+permissions:
+    acg.*:
+        description: Allow someone to use all commands availables in this plugin.
+        default: op
+        children:
+            acg.setauto: true
+            acg.removeauto: true
+            acg.removeall: true
+    acg.setauto:
+        description: Allow someone to set an automatic cobblestone generator.
+        default: op
+    acg.removeauto:
+        description: Allow someone to remove an automatic cobblestone generator.
+        default: op
+    acg.removeall:
+        description: Allow someone to remove all setuped automatic cobblestone generator
+        default: op
