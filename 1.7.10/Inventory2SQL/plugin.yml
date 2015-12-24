@@ -1,0 +1,5 @@
+name: Inventory2SQL
+version: 1.0.0
+main: aireayquaza.inventory2sql.Inventory2SQL
+description: Save and load player inventory from sql database.
+author: Aire_Ayquaza
