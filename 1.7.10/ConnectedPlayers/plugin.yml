@@ -1,0 +1,5 @@
+name: ConnectedPlayers
+version: 1.0.0
+main: aireayquaza.connectedplayers.ConnectedPlayers
+description: Add connected players into a database
+author: Aire_Ayquaza
