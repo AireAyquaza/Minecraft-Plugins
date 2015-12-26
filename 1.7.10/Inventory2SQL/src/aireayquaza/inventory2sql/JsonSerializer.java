@@ -117,13 +117,14 @@ public class JsonSerializer
 			}
 			
 			lore = lore.substring(0, lore.length() - 1);
-			
 			this.minecraftSerialized = this.minecraftSerialized.replaceAll("(.+lore=\\[)(.+)(\\].+)", "$1\"" + lore + "\"$3");
 		}
 		this.minecraftSerialized = this.minecraftSerialized.replaceAll("(.+display-name=)([^,]+)(.+)", "$1\"$2\"$3");
 		this.serializeNoMeta();
 		this.minecraftSerialized = this.minecraftSerialized.replaceAll(":\\{", ": {");
 		this.minecraftSerialized = this.minecraftSerialized.replaceAll("(.+)\"meta\": \"([A-Z_-]+)\": \\{(.+)", "$1\"meta-type\": \"$2\",\"meta\": {$3");
+		String lore = this.minecraftSerialized.replaceAll("(.+\"lore\": \\[\")(.+)(\"\\].+)", "$2").replaceAll("\"", "");
+		this.minecraftSerialized = this.minecraftSerialized.replaceAll("(.+\"lore\": \\[\")(.+)(\"\\].+)", "$1" + lore + "$3");
 	}
 	
 	private void serializeLeatherArmor()
@@ -132,7 +133,6 @@ public class JsonSerializer
 		
 		LeatherArmorMeta lam = (LeatherArmorMeta) item.getItemMeta();
 		int color = lam.getColor().asRGB();
-		
 		this.minecraftSerialized = this.minecraftSerialized.replaceAll("(.+\"color\": )\"Color\":\\[rgb0x([0-9ABCDEF]{6})\\](.+)", "$1[" + color + "]$3");
 	}
 	
