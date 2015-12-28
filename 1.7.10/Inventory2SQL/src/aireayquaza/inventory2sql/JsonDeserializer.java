@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -22,6 +23,11 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.comphenix.example.Attributes;
+import com.comphenix.example.Attributes.Attribute;
+import com.comphenix.example.Attributes.AttributeType;
+import com.comphenix.example.Attributes.Operation;
 
 /**
  * @author Aire Ayquaza
@@ -93,6 +99,21 @@ public class JsonDeserializer
 		
 		if (source.has("amount"))
 			item.setAmount(source.getInt("amount"));
+		
+		if (source.has("attributes"))
+		{
+			JSONArray jsonAttr = source.getJSONArray("attributes");
+			
+			Attributes attributes = new Attributes(item);
+			
+			for (int i = 0; i < jsonAttr.length(); i++)
+			{
+				JSONObject attr = jsonAttr.getJSONObject(i);
+				attributes.add(Attribute.newBuilder().name(attr.getString("name")).type(AttributeType.fromId(attr.getString("id"))).amount(attr.getDouble("amount")).uuid(UUID.fromString(attr.getString("UUID"))).operation(Operation.fromId(attr.getInt("operationId"))).build());
+			}
+			
+			item = attributes.getStack();
+		}
 		
 		return item;
 	}

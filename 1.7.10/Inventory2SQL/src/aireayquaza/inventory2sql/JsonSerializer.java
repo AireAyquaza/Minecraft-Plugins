@@ -8,6 +8,9 @@ import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
+import com.comphenix.example.Attributes;
+import com.comphenix.example.Attributes.Attribute;
+
 /**
  * @author Aire Ayquaza
  * @version 1.0.0
@@ -103,6 +106,22 @@ public class JsonSerializer
 		this.minecraftSerialized = this.minecraftSerialized.replaceAll(", ", ",");
 		this.minecraftSerialized = this.minecraftSerialized.replaceAll(": (([A-Za-z_-]| )+),", ": \"$1\",");
 		this.minecraftSerialized = this.minecraftSerialized.replaceAll(": (([A-Za-z_-]| )+)", ": \"$1\"");
+		
+		Attributes attributes = new Attributes(this.item);
+		
+		if (attributes.size() > 0)
+		{
+			String jsonAttr = ",\"attributes\": [";
+			
+			for (Attribute a : attributes.values())
+			{
+				jsonAttr += "{\"name\": \"" + a.getName() + "\",\"id\": \"" + a.getAttributeType().getMinecraftId() + "\",\"amount\": " + a.getAmount() + ",\"UUID\": \"" + a.getUUID().toString() + "\",\"operationId\": " + a.getOperation().getId() + "},";
+			}
+			
+			jsonAttr = jsonAttr.substring(0, jsonAttr.length() - 1) + "]";
+			
+			this.minecraftSerialized = this.minecraftSerialized.replaceAll("(.+)\\}", "$1" + jsonAttr + "}");
+		}
 	}
 	
 	private void serializeUnspecific()
